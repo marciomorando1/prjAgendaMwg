@@ -1,0 +1,8 @@
+{
+  "build": {
+    "command": "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn seu_projeto.wsgi:application"
+  },
+  "deploy": {
+    "startCommand": "python manage.py collectstatic --noinput && gunicorn seu_projeto.wsgi:application"
+  }
+}
