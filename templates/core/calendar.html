@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+{% if request.user.gerente_projetos %}
+  <form id="user-select-form" class="mb-3">
+    <label for="user_id">Selecionar usuário:</label>
+    <select id="user_id" name="user_id" class="form-select w-auto d-inline-block">
+      {% for u in usuarios %}
+        <option value="{{ u.id }}" {% if u.id == request.user.id %}selected{% endif %}>
+          {{ u.nome|default:u.username }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+{% endif %}
+
+<div id='calendar'></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    locale: 'pt-br',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    },
+    buttonText: {
+      today: 'HOJE',
+      month: 'Mês',
+      week: 'Semana',
+      day: 'Dia',
+      list: 'Lista'
+    },
+    eventClick: function(info) {
+      const numero = info.event.id;
+      window.location.href = `/core/atividades/${numero}/`;
+    },
+    events: function(fetchInfo, successCallback, failureCallback) {
+      // adiciona user_id se houver
+      var userId = document.getElementById('user_id')?.value;
+      var url = `/core/atividades/feed/?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`;
+      if (userId) url += '&user_id=' + userId;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => successCallback(data))
+        .catch(err => failureCallback(err));
+    }
+  });
+
+  calendar.render();
+
+  // se gerente, recarrega calendário ao trocar de usuário
+  var select = document.getElementById('user_id');
+  if (select) {
+    select.addEventListener('change', function() {
+      calendar.refetchEvents();
+    });
+  }
+});
+</script>
+
+{% endblock %}
+
+{% comment %} {% extends 'core/base.html' %}
+{% block content %}
+<div id='calendar'></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    locale: 'pt-br',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    },
+    buttonText: {
+      today: 'HOJE',
+      month: 'Mês',
+      week: 'Semana',
+      day: 'Dia',
+      list: 'Lista'
+    },
+    eventClick: function(info) {
+      const numero = info.event.id;
+      window.location.href = `/core/atividades/${numero}/`;
+    },
+    events: '/core/atividades/feed/'
+  });
+  calendar.render();
+});
+
+</script>
+{% endblock %} {% endcomment %}
+

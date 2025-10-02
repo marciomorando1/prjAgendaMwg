@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3>Tem certeza que deseja excluir a atividade #{{ object.numero }}?</h3>
+  <p><strong>Cliente:</strong> {{ object.nome_cliente }}</p>
+  <p><strong>Orçamento:</strong> {{ object.numero_orcamento }}</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Excluir</button>
+    <a href="{% url 'activity_detail' object.numero %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
